@@ -8,6 +8,10 @@ Spot is a command line tool and library for scala that can be used to:
 - be smart enough to recognize mutate on request fields (e.g time)
 - handle multiple types of response (e.g xml, json, csv, plain text, html) with plugable extension libraries
 
+## Planned
+- [ ] fs2 / monix integration
+- [ ] abstract above sttp eventually (for now just supplies http)
+
 ## Current Status (Naive)
 - fails on difference
 

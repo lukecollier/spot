@@ -10,42 +10,37 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.syntax.either._
 import cats.implicits._
 
-sealed trait Difference {
-  def getRef: AnyRef
-  def message: AnyRef
+sealed trait Difference[A] {
+  def message: String
 }
-final case class Additional(val ref: AnyRef) extends Difference {
-  def getRef: AnyRef = ref
+final case class Additional[A](val ref: A) extends Difference[A] {
   def message: String = "Found element missing from original source"
 }
-final case class Removed(val ref: AnyRef) extends Difference {
-  def getRef: AnyRef = ref
+final case class Removed[A](val ref: A) extends Difference[A] {
   def message: String = "Found element missing from original source"
 }
-final case class Ordering(val ref: AnyRef) extends Difference {
-  def getRef: AnyRef = ref
+final case class Ordering[A](val ref: A) extends Difference[A] {
   def message: String = "Found element missing from original source"
 }
 
 // convert this to an applicative typeclass
 // convert chain to be a Semigroup typeclass
 private[internals] sealed trait DifferenceValidatorNec {
-  type DifferencesResult[A] = ValidatedNec[Difference, A]
+  type Differences[A, B] = ValidatedNec[Difference[A], B]
 
   // TODO improve this
-  private[internals] def validateOccurances[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): DifferencesResult[F[A]] = {
-
-    def check(el: A, amount: Int): Either[List[Difference], A] = {
+  private[internals] def validateOccurances[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): Differences[A, F[A]] = {
+    def check(el: A, amount: Int): Either[List[Difference[A]], A] = {
       if (amount > 0) {
         Left(left
           .filter{ ot => Eq[A].eqv(el, ot) }
-          .fmap{ ot => Removed(ot.asInstanceOf[AnyRef]) }
+          .fmap{ ot => Removed(ot) }
           .toList.takeRight(Math.abs(amount)))
       } 
       else if (amount < 0) {
         Left(right
           .filter{ot => Eq[A].eqv(el, ot)}
-          .fmap{ot => Additional(ot.asInstanceOf[AnyRef])}
+          .fmap{ot => Additional(ot)}
           .toList.takeRight(Math.abs(amount)))
       }
       else if (amount === 0) Right(el)
@@ -72,7 +67,7 @@ private[internals] sealed trait DifferenceValidatorNec {
   }
 
   // TODO improve this
-  private[internals] def validateOrder[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): DifferencesResult[F[A]] = {
+  private[internals] def validateOrder[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): Differences[A, F[A]] = {
     val leftWithPrevious = left.zipWithIndex.fmap{case (v, idx) => 
       left.get((idx - 1).toLong).map{ other => 
         (other, v)
@@ -90,7 +85,7 @@ private[internals] sealed trait DifferenceValidatorNec {
         case None => Right(s)
         case Some(_) => 
           rightWithPrevious.find{case (f1, s1) => (f1 === f && s === s1)} match {
-            case None => Left(Ordering(s.asInstanceOf[AnyRef]))
+            case None => Left(Ordering(s))
             case Some(_) => Right(s)
           }
       }
@@ -103,7 +98,7 @@ private[internals] sealed trait DifferenceValidatorNec {
     }
   }
 
-  private[spot] def validate[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): DifferencesResult[F[A]] = {
+  private[spot] def validate[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): Differences[A, F[A]] = {
     (validateOrder(left, right), validateOccurances(left, right)) match {
       case (Valid(_), Valid(_)) => Valid(left)
       case (i@Invalid(_), Valid(_)) => i

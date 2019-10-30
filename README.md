@@ -22,3 +22,21 @@ Spot is a command line tool and library for scala that can be used to:
 Spot is different in it's approach but aims to allow users to define their own way to measure confidence and feed that number of live requests back into diffy to measure the difference when considering a candidate release. This methodology should hopefully reduce the need for QA to spend on regression and allow them to spend time looking at more sinister and hidden bugs.
 
 read (this white paper)[http://www.xmailserver.org/diff2.pdf] to implement better diffing algorithms
+
+
+### Planned API
+```scala 
+implicit val jsonComparator: Comparator[Resp, Json] = {
+  def compare(x: Resp, y: Resp): Comparison[Json] = {
+    val (xJson, yJson): (Json, Json) = (x.as[Json], y.as[Json])
+    DifferenceValidatorNec.compare(xJson, yJson)
+  }
+}
+val requests = new Sink((x,y) => Comparator.compare(x,y)) # find a way to implement this
+or
+val requests: Bucket[List[_], (Resp, Resp) => Comparison] = new Bucket(List(json, binary, xml), (x, y) => c.compare(x, y))
+
+val liveHostNames: List[Host] = List(Host("https", "pe-04.lhr"), Host("https", "pe-05.ams"))
+val stageHostNames: List[Host] = List(Host("https", "pe-stage-05.ams"))
+requests.candidates(stageHostNames).productions(liveHostNames).compare
+```

@@ -10,4 +10,5 @@ object Main extends IOApp {
       case None =>
         IO(System.err.println("Usage: MyApp name")).as(ExitCode(2))
     }  
+
 }

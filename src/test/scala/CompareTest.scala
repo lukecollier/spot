@@ -39,7 +39,7 @@ object CompareTest extends TestSuite{
       }.unsafeToFuture()
     }
     test("compare requests") {
-      test("request can be transformed") {
+      test("can be the same") {
         val first: Response[Either[String, List[String]]] =
           Response(Right(List("first","second")), StatusCode.Ok, "OK")
         val second: Response[Either[String, List[String]]] =
@@ -49,7 +49,19 @@ object CompareTest extends TestSuite{
         val exp = (Same(), Same())
         assert(res == exp)
 
-     }
+      }
+      test("body can be different") {
+        val first: Response[Either[String, List[String]]] =
+          Response(Right(List("first")), StatusCode.Ok, "OK")
+        val second: Response[Either[String, List[String]]] =
+          Response(Right(List("first", "second")), StatusCode.Ok, "OK")
+
+        val res = compare[List[String]](first, second)(Comparator.listString)
+        val exp = (Different(), Same())
+        assert(res == exp)
+
+      }
     }
-  }
+
+    }
 }

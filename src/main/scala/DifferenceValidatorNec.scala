@@ -1,25 +1,21 @@
 package spot.internals
 
-import cats.data.ValidatedNec
-import cats.data.{NonEmptyChain, Chain}
-import cats.kernel.Eq
-import cats.Traverse
-import cats.kernel.Semigroup
-import cats.TraverseFilter
+import cats.{Traverse, TraverseFilter}
 import cats.data.Validated.{Invalid, Valid}
-import cats.syntax.either._
+import cats.data.{Chain, NonEmptyChain, ValidatedNec}
 import cats.implicits._
+import cats.kernel.Eq
 
 sealed trait Difference[A] {
   def message: String
 }
-final case class Additional[A](val ref: A) extends Difference[A] {
+final case class Additional[A](ref: A) extends Difference[A] {
   def message: String = "Found element missing from original source"
 }
-final case class Removed[A](val ref: A) extends Difference[A] {
+final case class Removed[A](ref: A) extends Difference[A] {
   def message: String = "Found element missing from original source"
 }
-final case class Ordering[A](val ref: A) extends Difference[A] {
+final case class Ordering[A](ref: A) extends Difference[A] {
   def message: String = "Found element missing from original source"
 }
 

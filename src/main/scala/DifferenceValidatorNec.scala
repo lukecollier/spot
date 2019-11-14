@@ -25,7 +25,7 @@ private[internals] sealed trait DifferenceValidatorNec {
   type Differences[A, B] = ValidatedNec[Difference[A], B]
 
   // TODO improve this
-  private[internals] def validateOccurances[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): Differences[A, F[A]] = {
+  private[internals] def validateOccurrences[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): Differences[A, F[A]] = {
     def check(el: A, amount: Int): Either[List[Difference[A]], A] = {
       if (amount > 0) {
         Left(left
@@ -95,7 +95,7 @@ private[internals] sealed trait DifferenceValidatorNec {
   }
 
   private[spot] def validate[A: Eq, F[_]: Traverse : TraverseFilter](left: F[A], right: F[A]): Differences[A, F[A]] = {
-    (validateOrder(left, right), validateOccurances(left, right)) match {
+    (validateOrder(left, right), validateOccurrences(left, right)) match {
       case (Valid(_), Valid(_)) => Valid(left)
       case (i@Invalid(_), Valid(_)) => i
       case (Valid(_), i@Invalid(_)) => i

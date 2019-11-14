@@ -7,6 +7,8 @@ import spot.internals.DifferenceValidatorNec.validate
 import sttp.client._
 import sttp.model.{Header, Uri}
 
+import scala.language.higherKinds
+
 object Compare {
 
   type Body[A] = Either[String, A]
@@ -58,6 +60,7 @@ object Compare {
           case Requests(candidate, primary, secondary) =>
             val primarySecondary = compare(primary, secondary)
             val canidatePrimary = compare(candidate, primary)
+            // compare primary secondary and candidate primary and see if the differences are the same
             Same()
         }
       }
@@ -76,6 +79,16 @@ trait Comparator[A] {
 object Comparator {
   implicit val listString: Comparator[List[String]] = (orig: List[String], alt: List[String]) => {
     if (validate(orig, alt).isValid) {
+      Same()
+    } else {
+      Different()
+    }
+  }
+
+  implicit val byteArray: Comparator[Array[Byte]] = (orig: Array[Byte], alt: Array[Byte]) => {
+    val origList: List[Byte] = orig.toList
+    val altList: List[Byte] = alt.toList
+    if (validate(origList, altList).isValid) {
       Same()
     } else {
       Different()

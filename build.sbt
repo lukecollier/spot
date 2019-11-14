@@ -25,7 +25,7 @@ lazy val spot = (project in file("."))
 
     testFrameworks += TestFramework("utest.runner.Framework"),
 
-    scalacOptions ++= Seq("-Xfatal-warnings", "-deprecation")
+    scalacOptions ++= Seq("-Xfatal-warnings", "-deprecation", "-language:higherKinds")
   )
 
 

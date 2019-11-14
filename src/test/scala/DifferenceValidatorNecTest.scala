@@ -82,57 +82,57 @@ object DifferenceValidatorNecTest extends TestSuite{
         test("contain the same characters") {
           val initial = "hello, world!".toList
           val compare = "hello, world!".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Valid(_) =>}
         }
         test("contain 1 additional character") {
           val initial = "hello, world!".toList
           val compare = "hello, world!?".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(Chain(Additional(_))) =>}
         }
         test("contain 2 additional characters") {
           val initial = "hello, world".toList
           val compare = "hello, world!?".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(Chain(Additional(_), Additional(_))) =>}
         }
         test("contain 1 less character") {
           val initial = "hello, world!".toList
           val compare = "hello, world".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(Chain(Removed(_))) =>}
         }
         test("contain 2 less characters") {
           val initial = "hello, world!".toList
           val compare = "hello world".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(Chain(Removed(_), Removed(_))) =>}
         }
         test("contain 1 less character and 1 additional character") {
           val initial = "hello, world!".toList
           val compare = "hello, world?".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(Chain(Removed(_), Additional(_))) =>}
         }
         test("contain 1 less characters and 2 additional characters") {
           val initial = "hello, world!".toList
           val compare = "hello world?!!".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(Chain(Additional(_), Removed(_), 
           Additional(_))) =>}
         }
         test("contain 2 less characters and 1 additional characters") {
           val initial = "hello world!".toList
           val compare = "hello, world?".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(Chain(Removed(_), Additional(_), 
           Additional(_))) =>}
         }
         test("contains the same word twice") {
           val initial = "hello, world!".toList
           val compare = "hellohello, world!".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(
             Chain(Additional(_), Additional(_), Additional(_), Additional(_), 
           Additional(_))) =>}
@@ -140,7 +140,7 @@ object DifferenceValidatorNecTest extends TestSuite{
         test("is completely different") {
           val initial = "abcd".toList
           val compare = "efgh".toList
-          val res = DifferenceValidatorNec.validateOccurances(initial, compare)
+          val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(
             Chain(Additional(_), Additional(_), Removed(_), Removed(_), 
           Additional(_), Removed(_), Removed(_), Additional(_))) =>}

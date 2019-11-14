@@ -4,11 +4,10 @@ import cats.effect.{ContextShift, IO}
 import sttp.client._
 import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import sttp.client.testing.SttpBackendStub
-import sttp.model.StatusCode
+import sttp.model.{Header, StatusCode}
 import utest._
 
 import scala.concurrent.ExecutionContext
-
 import spot.compare.Compare.compare
 
 
@@ -40,26 +39,36 @@ object CompareTest extends TestSuite{
     }
     test("compare requests") {
       test("can be the same") {
-        val first: Response[Either[String, List[String]]] =
-          Response(Right(List("first","second")), StatusCode.Ok, "OK")
-        val second: Response[Either[String, List[String]]] =
-          Response(Right(List("first", "second")), StatusCode.Ok, "OK")
+        val first: Response[Either[String, Array[Byte]]] =
+          Response(Right(Array(0, 1, 2)), StatusCode.Ok, "OK")
+        val second: Response[Either[String, Array[Byte]]] =
+          Response(Right(Array(0, 1, 2)), StatusCode.Ok, "OK")
 
-        val res = compare[List[String]](first, second)(Comparator.listString)
+        val res = compare[Array[Byte]](first, second)(Comparator.byteArray)
         val exp = (Same(), Same())
         assert(res == exp)
 
       }
       test("body can be different") {
-        val first: Response[Either[String, List[String]]] =
-          Response(Right(List("first")), StatusCode.Ok, "OK")
-        val second: Response[Either[String, List[String]]] =
-          Response(Right(List("first", "second")), StatusCode.Ok, "OK")
+        val first: Response[Either[String, Array[Byte]]] =
+          Response(Right(Array(0, 1, 2)), StatusCode.Ok, "OK")
+        val second: Response[Either[String, Array[Byte]]] =
+          Response(Right(Array(0, 1)), StatusCode.Ok, "OK")
 
-        val res = compare[List[String]](first, second)(Comparator.listString)
+        val res = compare[Array[Byte]](first, second)(Comparator.byteArray)
         val exp = (Different(), Same())
         assert(res == exp)
+      }
+      test("header can be different") {
+        val base: Response[Either[String, Array[Byte]]] =
+          Response(Right(Array(1, 2, 3)), StatusCode.Ok, "OK")
 
+        val first = base.copy(headers = Seq(Header("X-experiment-seed", "123")))
+        val second = base.copy(headers = Seq(Header("X-experiment-seed", "124")))
+
+        val res = compare[Array[Byte]](first, second)(Comparator.byteArray)
+        val exp = (Same(), Different())
+        assert(res == exp)
       }
     }
 

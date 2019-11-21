@@ -8,7 +8,7 @@ import sttp.client._
 import sttp.model.{Header, Uri}
 import cats.data._
 
-import spot.internals.Difference
+import spot.internals.{Difference, Additional, Removed, Ordering}
 
 object Compare {
 
@@ -63,19 +63,26 @@ object Compare {
             val canidatePrimary = compare(candidate, primary)
             val bodyRes = (primarySecondary._1, canidatePrimary._1) match {
               case (Different(primaryErr), Different(candidateErr)) => 
-                println(primaryErr, candidateErr)
-                if (primaryErr == candidateErr) {
+                // todo seperate this complexity or even fix the root problem
+                val (pAdd, cAdd) = (
+                  primaryErr.collect { case Additional(value) => value}, 
+                  candidateErr.collect { case Additional(value) => value})
+                val (pRem, cRem) = (
+                  primaryErr.collect { case Removed(value) => value}, 
+                  candidateErr.collect { case Removed(value) => value})
+                val (firstDiff, secondDiff) = (pAdd.toList.diff(cRem.toList), cAdd.toList.diff(pRem.toList))
+                if (firstDiff.isEmpty && secondDiff.isEmpty) {
                   Same
                 } else {
                   Different(candidateErr)
                 }
-              case (Different(chain), Same) => Same
+              case (Different(_), Same) => Same
               case (Same, Different(chain)) => Different(chain)
               case (Same, Same) => Same
             }
             val headerRes = (primarySecondary._2, canidatePrimary._2) match {
               case (Different(primaryErr), Different(candidateErr)) => ??? // if same return same
-              case (Different(chain), Same) => Same
+              case (Different(_), Same) => Same
               case (Same, Different(chain)) => Different(chain)
               case (Same, Same) => Same
             }

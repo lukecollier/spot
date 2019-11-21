@@ -54,8 +54,9 @@ object Compare {
   }
 
   // needs to convert to event driven so we can continually run this
+  // this should take an Stream[PartReq[A]]
   def runAnalysis[A, WS[_]](host: Uri, hosts: (Uri, Uri), reqs: List[PartReq[A]])(
-    implicit co: Comparator[A], b: SttpBackend[IO, Nothing, WS]) = {
+    implicit co: Comparator[A], b: SttpBackend[IO, Nothing, WS]): List[IO[(Comparison, Comparison)]] = {
       reqs.map { partialRequest =>
         request[A, WS](host, hosts, partialRequest).map {
           case Requests(candidate, primary, secondary) =>

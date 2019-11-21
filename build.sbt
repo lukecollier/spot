@@ -23,6 +23,12 @@ lazy val spot = (project in file("."))
       "org.scala-lang.modules" %% "scala-xml" % xmlVersion
     ),
 
+    libraryDependencies ++= Seq(
+      "co.fs2" %% "fs2-core" % "2.0.0", // For cats 1.5.0 and cats-effect 1.2.0
+      "com.ovoenergy" %% "fs2-kafka" % "0.20.2",
+      "ch.qos.logback" % "logback-classic" % "1.2.3"
+    ),
+
     testFrameworks += TestFramework("utest.runner.Framework"),
 
     scalacOptions ++= Seq("-Xfatal-warnings", "-deprecation", "-language:higherKinds")

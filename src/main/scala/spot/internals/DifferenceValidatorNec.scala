@@ -1,10 +1,10 @@
 package spot.internals
 
-import cats.{Traverse, TraverseFilter}
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.{Chain, NonEmptyChain, ValidatedNec}
 import cats.implicits._
 import cats.kernel.Eq
+import cats.{Traverse, TraverseFilter}
 
 sealed trait Difference[A] {
   def message: String

@@ -1,14 +1,13 @@
-package spot.compare
+package spot
 
+import cats.Eq
+import cats.data._
 import cats.effect.IO
 import cats.implicits._
-import cats.{Eq, Monad}
+import spot.internals.{Additional, Difference, Removed}
 import spot.internals.DifferenceValidatorNec.validate
 import sttp.client._
 import sttp.model.{Header, Uri}
-import cats.data._
-
-import spot.internals.{Difference, Additional, Removed, Ordering}
 
 object Compare {
 
@@ -21,7 +20,7 @@ object Compare {
     primary: Res[A], 
     secondary: Res[A])
 
-  private[compare] def request[A,  WS[_]](host: Uri, hosts: (Uri, Uri), request: PartReq[A] = basicRequest)(
+  private[spot] def request[A,  WS[_]](host: Uri, hosts: (Uri, Uri), request: PartReq[A] = basicRequest)(
     implicit b: SttpBackend[IO, Nothing, WS]): IO[Requests[A]] = {
       val (u1, u2) = hosts
       for {
@@ -42,7 +41,7 @@ object Compare {
     }
   }
 
-  private[compare] def compare[A](a: Res[A], b: Res[A])(implicit co: Comparator[A]) = {
+  private[spot] def compare[A](a: Res[A], b: Res[A])(implicit co: Comparator[A]) = {
     (a.body, b.body) match {
       case (Right(aBody), Right(bBody)) =>
         val (aHeaders, bHeaders) = (a.headers.toVector, b.headers.toVector)

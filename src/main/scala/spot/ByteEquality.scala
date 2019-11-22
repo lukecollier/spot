@@ -1,4 +1,4 @@
-
+package spot
 
 object ByteEquality {
   val MAX_CONTENT_SIZE: Long = Long.MaxValue

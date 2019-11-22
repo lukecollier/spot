@@ -13,12 +13,12 @@ object DifferenceValidatorNecTest extends TestSuite{
 
     test("xml"){
       implicit val metaEq: Eq[MetaData] = new Eq[MetaData] {
-        def eqv(x: MetaData, y: MetaData): Boolean = { 
-          x strict_== y 
+        def eqv(x: MetaData, y: MetaData): Boolean = {
+          x strict_== y
         }
       }
       implicit val nodeEq: Eq[Node] = new Eq[Node] {
-        def eqv(x: Node, y: Node): Boolean = { 
+        def eqv(x: Node, y: Node): Boolean = {
           x.label === y.label && x.attributes === y.attributes
         }
       }
@@ -119,14 +119,14 @@ object DifferenceValidatorNecTest extends TestSuite{
           val initial = "hello, world!".toList
           val compare = "hello world?!!".toList
           val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
-          assertMatch(res){case Invalid(Chain(Additional(_), Removed(_), 
+          assertMatch(res){case Invalid(Chain(Additional(_), Removed(_),
           Additional(_))) =>}
         }
         test("contain 2 less characters and 1 additional characters") {
           val initial = "hello world!".toList
           val compare = "hello, world?".toList
           val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
-          assertMatch(res){case Invalid(Chain(Removed(_), Additional(_), 
+          assertMatch(res){case Invalid(Chain(Removed(_), Additional(_),
           Additional(_))) =>}
         }
         test("contains the same word twice") {
@@ -134,7 +134,7 @@ object DifferenceValidatorNecTest extends TestSuite{
           val compare = "hellohello, world!".toList
           val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(
-            Chain(Additional(_), Additional(_), Additional(_), Additional(_), 
+            Chain(Additional(_), Additional(_), Additional(_), Additional(_),
           Additional(_))) =>}
         }
         test("is completely different") {
@@ -142,7 +142,7 @@ object DifferenceValidatorNecTest extends TestSuite{
           val compare = "efgh".toList
           val res = DifferenceValidatorNec.validateOccurrences(initial, compare)
           assertMatch(res){case Invalid(
-            Chain(Additional(_), Additional(_), Removed(_), Removed(_), 
+            Chain(Additional(_), Additional(_), Removed(_), Removed(_),
           Additional(_), Removed(_), Removed(_), Additional(_))) =>}
         }
       }
@@ -151,7 +151,7 @@ object DifferenceValidatorNecTest extends TestSuite{
           val initial = "abcd".toList
           val compare = "dcba".toList
           val res = DifferenceValidatorNec.validateOrder(initial, compare)
-          assertMatch(res){case Invalid(Chain(Ordering(_), Ordering(_), 
+          assertMatch(res){case Invalid(Chain(Ordering(_), Ordering(_),
           Ordering(_), Ordering(_))) =>}
         }
         test("order is the same"){

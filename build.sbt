@@ -24,7 +24,11 @@ lazy val spot = (project in file("."))
     ),
 
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % "2.0.0", // For cats 1.5.0 and cats-effect 1.2.0
+      "io.chrisdavenport" %% "log4cats-core" % "1.0.1",
+      "io.chrisdavenport" %% "log4cats-slf4j" % "1.0.1",
+      "org.rogach" %% "scallop" % "3.3.1",
+      "co.fs2" %% "fs2-core" % "2.0.0", // for cats 1.5.0 and cats-effect 1.2.0
+      "co.fs2" %% "fs2-io" % "2.0.0", // for cats 1.5.0 and cats-effect 1.2.0
       "com.ovoenergy" %% "fs2-kafka" % "0.20.2",
       "ch.qos.logback" % "logback-classic" % "1.2.3"
     ),

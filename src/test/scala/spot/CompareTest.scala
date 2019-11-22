@@ -1,4 +1,4 @@
-package spot.compare
+package spot
 
 import cats.effect.{ContextShift, IO}
 import sttp.client._
@@ -8,11 +8,10 @@ import sttp.model.{Header, StatusCode}
 import utest._
 import cats.implicits._
 import cats.data._
+
 import scala.concurrent.ExecutionContext
-
-import spot.compare.Compare.{compare, runAnalysis}
-import spot.internals.{Difference, Additional, Removed, Ordering}
-
+import spot.Compare.{compare, runAnalysis}
+import spot.internals.{Additional, Removed}
 
 // todo fix
 // Thread[AsyncHttpClient-timer-1-1,5,main] loading org.asynchttpclient.util.DateUtils after test or run has completed. This is a likely resource leak.
@@ -74,7 +73,7 @@ object CompareTest extends TestSuite{
         val second = base.copy(headers = Seq(secondHeader))
 
         val res = compare[Array[Byte]](first, second)(Comparator.byteArray)
-        val exp = (Same, Different(NonEmptyChain(Removed(firstHeader), Additional(secondHeader)))) 
+        val exp = (Same, Different(NonEmptyChain(Removed(firstHeader), Additional(secondHeader))))
         assert(res == exp)
       }
     }
@@ -120,7 +119,7 @@ object CompareTest extends TestSuite{
         }.flatMap { backend: SttpBackendStub[IO, Nothing] =>
           runAnalysis(uri"www.candidate.com", (uri"www.first.com", uri"www.second.com"),
               List(basicRequest.response(asByteArray)))(Comparator.byteArray, backend).sequence
-        }.map { 
+        }.map {
           assertMatch(_) { case List((Different(Chain(Removed(additional))), Same)) => }
         }.unsafeToFuture()
       }
@@ -142,7 +141,7 @@ object CompareTest extends TestSuite{
         }.flatMap { backend: SttpBackendStub[IO, Nothing] =>
           runAnalysis(uri"www.candidate.com", (uri"www.first.com", uri"www.second.com"),
               List(basicRequest.response(asByteArray)))(Comparator.byteArray, backend).sequence
-        }.map { 
+        }.map {
           assertMatch(_) {case List((Same, Same)) => }
         }.unsafeToFuture()
       }
@@ -167,7 +166,7 @@ object CompareTest extends TestSuite{
         }.flatMap { backend: SttpBackendStub[IO, Nothing] =>
           runAnalysis(uri"www.candidate.com", (uri"www.first.com", uri"www.second.com"),
               List(basicRequest.response(asByteArray)))(Comparator.byteArray, backend).sequence
-        }.map { 
+        }.map {
           assertMatch(_) {case List((Same,
             Different(Chain(Removed(firstHeader), Additional(secondHeader))))) => }
         }.unsafeToFuture()
